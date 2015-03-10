@@ -248,7 +248,7 @@ class WeightedDiGraph(DiGraph):
       cur = path[-1]
       if len(G[cur]) > 0:
         if rand.random() >= alpha:
-          path.append(rand.choice(G[cur]))
+          path.append(G[cur].choice(rand))
         else:
           path.append(path[0])
       else:

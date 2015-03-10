@@ -126,16 +126,41 @@ class TestWeightedNode(unittest.TestCase):
     node.extend([1, 2, 3, 4], [1., 0.5, 0.25, 0.125])
 
     rand = random.Random(0)
-    times_chose = {x:0 for x in node}
-    for x in range(0,100):
+    times_chose = {x: 0 for x in node}
+    for x in range(0, 100):
       times_chose[node.choice(rand)] += 1
 
     self.assertLess(times_chose[2], times_chose[1])
     self.assertLess(times_chose[3], times_chose[2])
     self.assertLess(times_chose[4], times_chose[3])
 
-#class TestWeightedDiGraph(unittest.TestCase):
-#  def test_random_walk(self):
+
+class TestWeightedDiGraph(unittest.TestCase):
+
+  def test_random_walk(self):
+    network = magicgraph.WeightedDiGraph()
+
+    network[1].extend([2, 3, 4, 5], [1., 1., 1., 0.1])
+    network[2].extend([1, 3, 4, 5], [1., 1., 1., 0.1])
+    network[3].extend([1, 2, 4, 5], [1., 1., 1., 0.1])
+    network[4].extend([1, 2, 3, 5], [1., 1., 1., 0.1])
+    network[5].extend([1, 2, 3, 4], [0.1, 0.1, 0.1, 0.1])
+
+    small_walk = network.random_walk(10, start=1)
+    self.assertTrue(5 not in small_walk)
+
+    long_walk = network.random_walk(1000, start=1)
+    self.assertTrue(5 in long_walk)
+
+    times_chose = {x: 0 for x in network}
+    for x in long_walk:
+      times_chose[x] += 1
+
+    # 5 shouldn't be chosen too often
+    self.assertLess(times_chose[5], times_chose[1])
+    self.assertLess(times_chose[5], times_chose[2])
+    self.assertLess(times_chose[5], times_chose[3])
+    self.assertLess(times_chose[5], times_chose[4])
 
 
 if __name__ == '__main__':
