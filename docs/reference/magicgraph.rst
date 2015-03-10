@@ -1,0 +1,5 @@
+magicgraph
+=============================
+
+.. automodule:: magicgraph
+    :members:
