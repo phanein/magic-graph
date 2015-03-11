@@ -27,8 +27,8 @@ setup(
     author_email="bperozzi@acm.org",
     url="https://github.com/phanein/magic-graph",
     packages=find_packages("src"),
-    package_dir={"": "src"},
-    py_modules=[splitext(basename(i))[0] for i in glob.glob("src/*.py")],
+    package_dir={"magicgraph": "src/magicgraph"},
+#    py_modules=[splitext(basename(i))[0] for i in glob.glob("src/*.py")],
     include_package_data=True,
     zip_safe=False,
     classifiers=[
