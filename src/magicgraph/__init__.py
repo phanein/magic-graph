@@ -149,6 +149,7 @@ class WeightedNode(list):
   def __init__(self, **kwargs):
     super(WeightedNode, self).__init__(kwargs)
     self.weights = []
+    self.total_weight = None
 
   def weight(self, index):
     return self.weights[index]
@@ -211,7 +212,11 @@ class WeightedNode(list):
       self.weights[idx] = weight
 
   def choice(self, rand):
-    upper = sum(self.weights)
+    upper = self.total_weight
+    if upper is None:
+      upper = sum(self.weights)
+      self.total_weight = upper
+
     stop = rand.uniform(0., upper)
 
     total = 0.
@@ -298,6 +303,30 @@ def load_weighted_edgelist(file_, undirected=False):
       x = int(x)
       y = int(y)
       w = int(w)
+      G[x].append(y, weight=w)
+      edges += 1
+      if undirected:
+        G[y].append(x, weight=w)
+
+  t1 = time()
+
+  logger.info('Parsed {} edges from edge list in {}s'.format(edges,  t1-t0))
+
+  return G
+
+def load_multigraph_edgelist(file_, second_seperator=':', undirected=False):
+
+  G = WeightedDiGraph()
+  t0 = time()
+
+  edges = 0
+
+  with open(file_) as f:
+    for l in f:
+      x, y, w = l.strip().split()[:3]
+      x = int(x)
+      y = int(y)
+      w = sum([float(a) for a in w.split(second_seperator)])
       G[x].append(y, weight=w)
       edges += 1
       if undirected:
