@@ -65,9 +65,9 @@ Installation
 
 .. https://magic-graph.readthedocs.org/
 
-Development
-===========
+.. Development
+.. ===========
 
-To run the all tests run::
+.. To run the all tests run::
 
-    tox
+..    tox
