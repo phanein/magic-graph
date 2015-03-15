@@ -58,7 +58,7 @@ Installation
 
 ::
 
-    pip install magicgraph
+    magic-graph/$ python setup.py install
 
 Documentation
 =============
