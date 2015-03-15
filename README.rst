@@ -60,10 +60,10 @@ Installation
 
     magic-graph/$ python setup.py install
 
-Documentation
-=============
+.. Documentation
+.. =============
 
-https://magic-graph.readthedocs.org/
+.. https://magic-graph.readthedocs.org/
 
 Development
 ===========
