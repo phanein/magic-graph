@@ -261,7 +261,7 @@ class WeightedDiGraph(DiGraph):
     return path
 
 
-def save_edgelist(G, file_, sep='\t'):
+def save_edgelist(G, file_, sep=u'\t'):
 
   t0 = time()
 
@@ -274,13 +274,34 @@ def save_edgelist(G, file_, sep='\t'):
         f.write(str(src))
         f.write(sep)
         f.write(str(dst))
-        f.write('\n')
+        f.write(u'\n')
         edges += 1
 
   t1 = time()
 
   logger.info('Wrote {} edges from edge list in {}s'.format(edges,  t1-t0))
 
+def save_weighted_edgelist(G, file_, sep=u'\t'):
+
+  t0 = time()
+
+  edges = 0
+
+  with open(file_, 'w') as f:
+
+    for src in G:
+      for edge_no, dst in enumerate(G[src]):
+        f.write(unicode(src))
+        f.write(sep)
+        f.write(unicode(dst))
+        f.write(sep)
+        f.write(unicode(G[src].weight(edge_no)))
+        f.write(u'\n')
+        edges += 1
+
+  t1 = time()
+
+  logger.info('Wrote {} edges from edge list in {}s'.format(edges,  t1-t0))
 
 def load_edgelist(file_, undirected=False, leftIsSource=True):
 
