@@ -7,6 +7,9 @@ from itertools import izip
 from collections import defaultdict, Iterable
 import math
 import random
+import numpy as np
+from scipy.io import loadmat
+from scipy.sparse import issparse
 import scipy.sparse as sparse
 
 
@@ -235,6 +238,36 @@ class WeightedDiGraph(DiGraph):
   def __init__(self):
     super(WeightedDiGraph, self).__init__(node_class=WeightedNode)
 
+  def make_undirected(self):
+    t0 = time()
+    for v in self.keys():
+      for edge_no, other in enumerate(self[v]):
+        if v != other:
+          self[other].append(v, weight=self[v].weight(edge_no))
+
+    t1 = time()
+    logger.info('make_undirected: added missing edges {}s'.format(t1-t0))
+
+    self.make_consistent()
+    return self
+
+
+  def make_consistent(self):
+    t0 = time()
+    for k in self.iterkeys():
+      unique_self, unique_indices = np.unique(self[k], return_index=True)
+      unique_weights = [self[k].weights[i] for i in unique_indices]
+      temp = WeightedNode()
+      temp.extend(list(unique_self), list(unique_weights))
+      self[k] = temp
+
+    t1 = time()
+    logger.info('make_consistent: made consistent in {}s'.format(t1-t0))
+
+    self.remove_self_loops()
+
+    return self
+
   def random_walk(self, path_length, alpha=0, rand=random.Random(), start=None):
     """ Returns a truncated random walk.
 
@@ -261,7 +294,7 @@ class WeightedDiGraph(DiGraph):
     return path
 
 
-def save_edgelist(G, file_, sep='\t'):
+def save_edgelist(G, file_, sep=u'\t'):
 
   t0 = time()
 
@@ -274,13 +307,34 @@ def save_edgelist(G, file_, sep='\t'):
         f.write(str(src))
         f.write(sep)
         f.write(str(dst))
-        f.write('\n')
+        f.write(u'\n')
         edges += 1
 
   t1 = time()
 
   logger.info('Wrote {} edges from edge list in {}s'.format(edges,  t1-t0))
 
+def save_weighted_edgelist(G, file_, sep=u'\t'):
+
+  t0 = time()
+
+  edges = 0
+
+  with open(file_, 'w') as f:
+
+    for src in G:
+      for edge_no, dst in enumerate(G[src]):
+        f.write(unicode(src))
+        f.write(sep)
+        f.write(unicode(dst))
+        f.write(sep)
+        f.write(unicode(G[src].weight(edge_no)))
+        f.write(u'\n')
+        edges += 1
+
+  t1 = time()
+
+  logger.info('Wrote {} edges from edge list in {}s'.format(edges,  t1-t0))
 
 def load_edgelist(file_, undirected=False, leftIsSource=True):
 
@@ -366,9 +420,13 @@ def load_multigraph_edgelist(file_, second_seperator=':', undirected=False):
 
   return G
 
+def load_matfile(file_, variable_name="network", undirected=False, weighted=False):
+    mat_variables = loadmat(file_)
+    mat_matrix = mat_variables[variable_name]
+    return from_numpy(mat_matrix, undirected, weighted)
+
 def from_networkx(G_input, undirected=False):
     G = Graph()
-
     for idx, x in enumerate(G_input.nodes_iter()):
         for y in G_input[x].iterkeys():
             G[x].append(y)
@@ -379,13 +437,24 @@ def from_networkx(G_input, undirected=False):
     return G
 
 
-def from_numpy(x):
-    G = Graph()
+def from_numpy(x, undirected=False, weighted=False):
+    if weighted:
+        print "G is weighted"
+        G = WeightedDiGraph()
+    else:
+        G = Graph()
 
     # TODO add handling for dense numpy too
     cx = x.tocoo()
     for i,j,v in izip(cx.row, cx.col, cx.data):
-        G[i].add(j)
+        if weighted:
+           G[i].append(j, weight=v)
+        else:
+           G[i].append(j)
+
+    if undirected:
+        G.make_undirected()
+
     G.make_consistent()
     return G
 

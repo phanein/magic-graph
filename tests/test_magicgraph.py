@@ -162,6 +162,32 @@ class TestWeightedDiGraph(unittest.TestCase):
     self.assertLess(times_chose[5], times_chose[3])
     self.assertLess(times_chose[5], times_chose[4])
 
+  def test_make_consistent(self):
+    network = magicgraph.WeightedDiGraph()
+    network[1].extend([2, 3, 4, 5], [1., 2., 3., 4])
+    network[1].extend([2,5], [1., 4])
+    network[2].extend([3, 4, 5], [1., 1., 1.])
+    assert(network[1] == [2,3,4,5,2,5])   
+    network.make_consistent()
+    assert(network[1] == [2,3,4,5])
+
+
+  def test_make_undirected(self):
+    network = magicgraph.WeightedDiGraph()
+    network[1].extend([2, 3, 4, 5], [1., 2., 3., 4])
+    assert(network[1] == [2,3,4,5])   
+    network.make_undirected()
+    assert(network[1] == [2,3,4,5])
+    assert(network[2] == [1])
+    assert(network[3] == [1])
+    assert(network[4] == [1])
+    assert(network[5] == [1])
+    assert(network[2].weight(0) == 1)
+    assert(network[3].weight(0) == 2)
+    assert(network[4].weight(0) == 3)
+    assert(network[5].weight(0) == 4)
+
+
 
 if __name__ == '__main__':
     unittest.main()
