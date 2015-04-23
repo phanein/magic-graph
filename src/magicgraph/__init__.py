@@ -446,11 +446,11 @@ def from_numpy(x, undirected=False, weighted=False):
 
     # TODO add handling for dense numpy too
     cx = x.tocoo()
-    for i,j,v in zip(cx.row, cx.col, cx.data)[:10]:
+    for i,j,v in izip(cx.row, cx.col, cx.data):
         if weighted:
            G[i].append(j, weight=v)
         else:
-           G[i].add(j)
+           G[i].append(j)
 
     if undirected:
         G.make_undirected()
