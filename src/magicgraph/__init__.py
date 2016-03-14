@@ -420,10 +420,12 @@ def load_multigraph_edgelist(file_, second_seperator=':', undirected=False):
 
   return G
 
+
 def load_matfile(file_, variable_name="network", undirected=False, weighted=False):
     mat_variables = loadmat(file_)
     mat_matrix = mat_variables[variable_name]
     return from_numpy(mat_matrix, undirected, weighted)
+
 
 def from_networkx(G_input, undirected=False):
     G = Graph()
