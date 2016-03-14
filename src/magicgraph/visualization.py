@@ -18,7 +18,7 @@ def find_color(value, maxv, minv, palette):
   return list(palette[idx]) + [1.0]
 
 
-def draw_graph_heatmap(graph, value_map, output, directed=False, palette=sns.cubehelix_palette(10, start=.5, rot=-.75)):
+def draw_graph_heatmap(graph, value_map, output, directed=False, palette=sns.cubehelix_palette(10, start=.5, rot=-.75), position=None):
 
   # for normalize
   values = value_map.values()
@@ -64,14 +64,17 @@ def draw_graph_heatmap(graph, value_map, output, directed=False, palette=sns.cub
       node_intensity[node] = find_color(0, maxv, minv, palette)
       node_label[node] = id
 
-  pos = gt.sfdp_layout(gt_graph)
+  if position is None:
+    position = gt.sfdp_layout(gt_graph)
 
-  gt.graph_draw(gt_graph, pos=pos,
+  gt.graph_draw(gt_graph, pos=position,
                 vertex_text=node_label,
                 vertex_fill_color=node_intensity,
                 output=output)
 
-def draw_graph(graph, value_map=None, output=None, show_ids=False, directed=False):
+  return position
+
+def draw_graph(graph, value_map=None, output=None, show_ids=False, directed=False, position=None):
 
   gt_graph = gt.Graph(directed=directed)
 
@@ -92,7 +95,8 @@ def draw_graph(graph, value_map=None, output=None, show_ids=False, directed=Fals
           gt_graph.add_edge(i, j)
           seen_edges.add((i, j))
 
-  pos = gt.sfdp_layout(gt_graph)
+  if position is None:
+    position = gt.sfdp_layout(gt_graph)
 
   node_label = gt_graph.new_vertex_property("string")
 
@@ -112,9 +116,10 @@ def draw_graph(graph, value_map=None, output=None, show_ids=False, directed=Fals
         node_label[node] = id
 
   if show_ids:
-    gt.graph_draw(gt_graph, pos=pos,
+    gt.graph_draw(gt_graph, pos=position,
                   vertex_text=node_label,
                   output=output)
   else:
-    gt.graph_draw(gt_graph, pos=pos, output=output)
+    gt.graph_draw(gt_graph, pos=position, output=output)
 
+  return position
